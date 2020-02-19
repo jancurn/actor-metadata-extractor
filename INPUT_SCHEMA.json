@@ -9,6 +9,13 @@
       "description": "A list of URLs to crawl.",
       "prefill": [ { "url": "https://apify.com" } ],
       "editor": "requestListSources"
+    },
+    "maxRequestRetries": {
+      "title": "Max page retries",
+      "type": "integer",
+      "description": "The maximum number of times the crawler will retry to load each web page on error.<br><br>If set to <code>0</code>, the page will be considered failed right after the first error.",
+      "minimum": 0,
+      "default": 3
     }
   },
   "required": [

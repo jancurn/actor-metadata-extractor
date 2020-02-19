@@ -1,5 +1,5 @@
 const Apify = require('apify');
-const { log } = Apify.utils;
+const { log, htmlToText } = Apify.utils;
 
 /**
  * Function called for each page to extract data from it.
@@ -10,7 +10,7 @@ const handlePageFunction = async ({ request, html, $ }) => {
 
     // Extract all meta elements from <head>
     const meta = {};
-    $('head meta').each(() => {
+    $('head meta').each(function () {
         let name = $(this).attr('name')
             || $(this).attr('property')
             || $(this).attr('http-equiv');
@@ -29,10 +29,28 @@ const handlePageFunction = async ({ request, html, $ }) => {
 
     const title = ($('head title').eq(0).text() || '').trim();
 
+    const language = $('html').eq(0).attr('lang').trim();
+
+    const content = {
+        navs: [],
+        headers: [],
+        sections: [],
+        footers: [],
+    };
+
+    ['nav', 'header', 'section', 'footer'].forEach((tag) => {
+        $(tag).each(function () {
+            // TODO: This is inefficient, htmlToText() should accept Cheerio element too
+            content[`${tag}s`].push(htmlToText($(this).html()));
+        });
+    });
+
     await Apify.pushData({
         url,
         title,
+        language,
         meta,
+        content,
     });
 };
 
@@ -48,6 +66,7 @@ Apify.main(async () => {
         maxConcurrency: 100,
         handlePageTimeoutSecs: 60,
         handlePageFunction,
+        maxRequestRetries: input.maxRequestRetries || 0,
         handleFailedRequestFunction: async ({ error, request }) => {
             log.exception(error, 'Failed to load the page, giving up', { url: request.url });
         },
