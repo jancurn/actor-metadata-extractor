@@ -1,0 +1,17 @@
+{
+  "title": "Schema for the jancurn/metadata-extractor actor",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "urls": {
+      "title": "URLs",
+      "type": "array",
+      "description": "A list of URLs to crawl.",
+      "prefill": [ { "url": "https://apify.com" } ],
+      "editor": "requestListSources"
+    }
+  },
+  "required": [
+    "urls"
+  ]
+}
