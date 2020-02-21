@@ -34,16 +34,30 @@ const handlePageFunction = async ({ request, html, $ }) => {
     const content = {
         navs: [],
         headers: [],
-        sections: [],
         footers: [],
+        captions: [],
+        mainText: null,
     };
 
-    ['nav', 'header', 'section', 'footer'].forEach((tag) => {
+    ['nav', 'header', 'footer'].forEach((tag) => {
         $(tag).each(function () {
             // TODO: This is inefficient, htmlToText() should accept Cheerio element too
             content[`${tag}s`].push(htmlToText($(this).html()));
         });
     });
+
+    $('h1, h2, h3, h4, h5, h6, h7').each(function () {
+        content.captions.push({
+            tag: $(this).prop('tagName').toLowerCase(),
+            value: $(this).text().trim(),
+        });
+    });
+
+    ['nav', 'header', 'footer'].forEach((tag) => {
+        $(tag).remove();
+    });
+
+    content.mainText = htmlToText($.root().html());
 
     await Apify.pushData({
         url,
